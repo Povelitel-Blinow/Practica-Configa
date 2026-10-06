@@ -22,6 +22,8 @@ namespace ShellEmulator.Tests
                 CheckCommands();
                 CheckRepl();
                 s_passed += StageTwoTests.Run();
+                s_passed += VfsTests.Run();
+                s_passed += VfsStartupTests.Run();
                 Console.WriteLine("PASS: " + s_passed + " checks");
                 return 0;
             }

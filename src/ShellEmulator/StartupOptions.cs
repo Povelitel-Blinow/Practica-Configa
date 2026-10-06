@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ShellEmulator
 {
-    /// <summary>Параметры запуска; VFS на этапе 2 только сохраняется в конфигурации.</summary>
+    /// <summary>Пути к CSV-образу VFS и стартовому скрипту.</summary>
     public class StartupOptions
     {
         private readonly Dictionary<string, string> _values;

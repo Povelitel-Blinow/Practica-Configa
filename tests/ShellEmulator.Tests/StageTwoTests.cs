@@ -120,12 +120,27 @@ namespace ShellEmulator.Tests
         /// <summary>После успешного скрипта запускается REPL; все параметры напечатаны.</summary>
         private static void CheckSuccessfulApplication(string path)
         {
+            string vfsPath = path + ".csv";
+            try
+            {
+                File.WriteAllText(vfsPath, "path,type,content\n");
+                CheckSuccessfulApplicationWithVfs(path, vfsPath);
+            }
+            finally
+            {
+                File.Delete(vfsPath);
+            }
+        }
+
+        /// <summary>Проверяет отладочный вывод путей и переход из скрипта в REPL.</summary>
+        private static void CheckSuccessfulApplicationWithVfs(string path, string vfsPath)
+        {
             StringWriter output = new StringWriter();
             StringWriter error = new StringWriter();
-            int code = Application.Run(new string[] {"--vfs", "not loaded.csv", "--script", path},
+            int code = Application.Run(new string[] {"--vfs", vfsPath, "--script", path},
                 new StringReader("ls INTERACTIVE\nexit\n"), output, error);
             Require(code == 0 && error.ToString() == "", "successful startup");
-            Require(output.ToString().Contains("VFS: not loaded.csv"), "debug VFS");
+            Require(output.ToString().Contains("VFS: " + vfsPath), "debug VFS");
             Require(output.ToString().Contains("Script: " + path), "debug script");
             Require(output.ToString().Contains("ls \"папка\""), "UTF-8 script input");
             Require(output.ToString().Contains("INTERACTIVE"), "REPL after script");

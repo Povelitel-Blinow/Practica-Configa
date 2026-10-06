@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using ShellEmulator.Commands;
+using ShellEmulator.Vfs;
 
 namespace ShellEmulator
 {
@@ -14,17 +15,36 @@ namespace ShellEmulator
         private readonly TextWriter _output;
         private readonly TextWriter _error;
         private readonly Dictionary<string, ICommand> _commands;
+        private readonly VirtualFileSystem _fileSystem;
 
         /// <summary>Сохраняет потоки и регистрирует встроенные команды.</summary>
         public Shell(TextReader input, TextWriter output, TextWriter error)
+            : this(input, output, error, new VirtualFileSystem())
+        {
+        }
+
+        /// <summary>Принимает готовую VFS в памяти, не зная о формате и расположении её источника.</summary>
+        public Shell(TextReader input, TextWriter output, TextWriter error, VirtualFileSystem fileSystem)
         {
             _input = input;
             _output = output;
             _error = error;
+            if (fileSystem == null)
+            {
+                throw new ArgumentNullException("fileSystem");
+            }
+
+            _fileSystem = fileSystem;
             _commands = new Dictionary<string, ICommand>(StringComparer.Ordinal);
             RegisterCommand("ls", new LsCommand());
             RegisterCommand("cd", new CdCommand());
             RegisterCommand("exit", new ExitCommand());
+        }
+
+        /// <summary>Предоставляет файловую систему текущей сессии для будущих команд.</summary>
+        public VirtualFileSystem GetFileSystem()
+        {
+            return _fileSystem;
         }
 
         /// <summary>Добавляет обработчик; повторное имя запрещено.</summary>

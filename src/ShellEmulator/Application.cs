@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using ShellEmulator.Vfs;
 
 namespace ShellEmulator
 {
@@ -12,21 +13,11 @@ namespace ShellEmulator
             try
             {
                 StartupOptions options = StartupOptions.Parse(args);
-                output.WriteLine("VFS: " + options.GetVfsPath());
-                output.WriteLine("Script: " + options.GetScriptPath());
-                Shell shell = new Shell(input, output, error);
-                CommandResult result = RunStartupScript(options.GetScriptPath(), shell);
-                if (result == CommandResult.Error)
-                {
-                    return 1;
-                }
-
-                if (result != CommandResult.Exit)
-                {
-                    shell.Run();
-                }
-
-                return 0;
+                return Start(options, input, output, error);
+            }
+            catch (InvalidDataException exception)
+            {
+                error.WriteLine("Ошибка VFS: " + exception.Message);
             }
             catch (ArgumentException exception)
             {
@@ -42,6 +33,28 @@ namespace ShellEmulator
             }
 
             return 1;
+        }
+
+        /// <summary>Подключает VFS, печатает motd и запускает скрипт перед интерактивным циклом.</summary>
+        private static int Start(StartupOptions options, TextReader input, TextWriter output, TextWriter error)
+        {
+            output.WriteLine("VFS: " + options.GetVfsPath());
+            output.WriteLine("Script: " + options.GetScriptPath());
+            VirtualFileSystem fileSystem = VfsStartup.Load(options.GetVfsPath());
+            VfsStartup.PrintMessage(fileSystem, output);
+            Shell shell = new Shell(input, output, error, fileSystem);
+            CommandResult result = RunStartupScript(options.GetScriptPath(), shell);
+            if (result == CommandResult.Error)
+            {
+                return 1;
+            }
+
+            if (result != CommandResult.Exit)
+            {
+                shell.Run();
+            }
+
+            return 0;
         }
 
         /// <summary>Открывает скрипт в UTF-8 и гарантированно закрывает файл.</summary>

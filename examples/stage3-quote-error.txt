@@ -1,0 +1,3 @@
+ls
+ls "unclosed
+ls NEVER

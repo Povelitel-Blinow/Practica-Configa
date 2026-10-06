@@ -1,0 +1,9 @@
+
+ls
+ls -l / /home/student/projects/demo
+ls "/comma,name.txt" "path with spaces" ""
+ls "$USERPROFILE" ${TEMP} '$HOME'
+cd
+cd /
+cd /home/student/projects/demo
+exit
