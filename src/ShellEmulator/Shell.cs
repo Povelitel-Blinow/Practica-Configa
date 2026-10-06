@@ -1,25 +1,41 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
+using ShellEmulator.Commands;
 
 namespace ShellEmulator
 {
-    /// <summary>Интерактивный прототип оболочки варианта 9, этап 1.</summary>
+    /// <summary>Оболочка с общим исполнителем для REPL и стартового скрипта.</summary>
     public class Shell
     {
         private const int CommandIndex = 0;
         private const int FirstArgumentIndex = 1;
-        private const int MaximumCdArguments = 1;
         private readonly TextReader _input;
         private readonly TextWriter _output;
         private readonly TextWriter _error;
+        private readonly Dictionary<string, ICommand> _commands;
 
-        /// <summary>Сохраняет потоки ввода, вывода и ошибок.</summary>
+        /// <summary>Сохраняет потоки и регистрирует встроенные команды.</summary>
         public Shell(TextReader input, TextWriter output, TextWriter error)
         {
             _input = input;
             _output = output;
             _error = error;
+            _commands = new Dictionary<string, ICommand>(StringComparer.Ordinal);
+            RegisterCommand("ls", new LsCommand());
+            RegisterCommand("cd", new CdCommand());
+            RegisterCommand("exit", new ExitCommand());
+        }
+
+        /// <summary>Добавляет обработчик; повторное имя запрещено.</summary>
+        public void RegisterCommand(string name, ICommand command)
+        {
+            if (string.IsNullOrWhiteSpace(name) || command == null)
+            {
+                throw new ArgumentException("Нужны имя команды и обработчик.");
+            }
+
+            _commands.Add(name, command);
         }
 
         /// <summary>Строит приглашение по реальным данным ОС.</summary>
@@ -36,27 +52,48 @@ namespace ShellEmulator
                 _output.Write(GetPrompt());
                 _output.Flush();
                 string line = _input.ReadLine();
-                if (line == null)
-                {
-                    return;
-                }
-
-                if (!Execute(line))
+                if (line == null || !Execute(line))
                 {
                     return;
                 }
             }
         }
 
-        /// <summary>Исполняет строку; возвращает false только при корректном exit.</summary>
+        /// <summary>Печатает ввод скрипта и останавливается на первой ошибке или exit.</summary>
+        public CommandResult RunScript(TextReader script)
+        {
+            string line = script.ReadLine();
+            while (line != null)
+            {
+                _output.WriteLine(GetPrompt() + line);
+                _output.Flush();
+                CommandResult result = ExecuteCommand(line);
+                if (result != CommandResult.Success)
+                {
+                    return result;
+                }
+
+                line = script.ReadLine();
+            }
+
+            return CommandResult.Success;
+        }
+
+        /// <summary>Сохраняет контракт REPL: ошибки продолжают диалог, exit завершает.</summary>
         public bool Execute(string line)
+        {
+            return ExecuteCommand(line) != CommandResult.Exit;
+        }
+
+        /// <summary>Разбирает строку и различает успех, ошибку и штатное завершение.</summary>
+        public CommandResult ExecuteCommand(string line)
         {
             try
             {
                 string[] words = CommandParser.Parse(line);
                 if (words.Length == 0)
                 {
-                    return true;
+                    return CommandResult.Success;
                 }
 
                 string[] arguments = new string[words.Length - FirstArgumentIndex];
@@ -70,57 +107,21 @@ namespace ShellEmulator
             catch (FormatException exception)
             {
                 _error.WriteLine("Ошибка: " + exception.Message);
-                return true;
+                return CommandResult.Error;
             }
         }
 
-        /// <summary>Выбирает встроенную команду либо сообщает о неизвестной команде.</summary>
-        private bool Dispatch(string command, string[] arguments)
+        /// <summary>Находит обработчик в реестре и выполняет его через общий контракт.</summary>
+        private CommandResult Dispatch(string command, string[] arguments)
         {
-            switch (command)
+            ICommand handler;
+            if (!_commands.TryGetValue(command, out handler))
             {
-                case "ls":
-                    PrintStub(command, arguments);
-                    return true;
-                case "cd":
-                    ExecuteCd(arguments);
-                    return true;
-                case "exit":
-                    return ExecuteExit(arguments);
-                default:
-                    _error.WriteLine("Ошибка: неизвестная команда: " + command);
-                    return true;
-            }
-        }
-
-        /// <summary>Проверяет число аргументов cd и выводит заглушку.</summary>
-        private void ExecuteCd(string[] arguments)
-        {
-            if (arguments.Length > MaximumCdArguments)
-            {
-                _error.WriteLine("Ошибка: cd принимает не более одного аргумента. Использование: cd [путь]");
-                return;
+                _error.WriteLine("Ошибка: неизвестная команда: " + command);
+                return CommandResult.Error;
             }
 
-            PrintStub("cd", arguments);
-        }
-
-        /// <summary>Разрешает завершение оболочки только для exit без аргументов.</summary>
-        private bool ExecuteExit(string[] arguments)
-        {
-            if (arguments.Length == 0)
-            {
-                return false;
-            }
-
-            _error.WriteLine("Ошибка: exit не принимает аргументы. Использование: exit");
-            return true;
-        }
-
-        /// <summary>Выводит имя команды и аргументы, не обращаясь к файловой системе.</summary>
-        private void PrintStub(string command, string[] arguments)
-        {
-            _output.WriteLine(command + ": " + JsonSerializer.Serialize(arguments));
+            return handler.Execute(arguments, _output, _error);
         }
     }
 }

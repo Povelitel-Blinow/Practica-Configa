@@ -1,0 +1,5 @@
+ls
+ls -l "$USERPROFILE"
+cd "folder with spaces"
+ls '$HOME'
+exit

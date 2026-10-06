@@ -21,6 +21,7 @@ namespace ShellEmulator.Tests
                 CheckParser();
                 CheckCommands();
                 CheckRepl();
+                s_passed += StageTwoTests.Run();
                 Console.WriteLine("PASS: " + s_passed + " checks");
                 return 0;
             }

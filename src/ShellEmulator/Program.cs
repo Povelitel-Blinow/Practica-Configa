@@ -7,12 +7,11 @@ namespace ShellEmulator
     internal class Program
     {
         /// <summary>Настраивает кодировку и запускает интерактивный цикл.</summary>
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
             Console.InputEncoding = Encoding.UTF8;
             Console.OutputEncoding = Encoding.UTF8;
-            Shell shell = new Shell(Console.In, Console.Out, Console.Error);
-            shell.Run();
+            return Application.Run(args, Console.In, Console.Out, Console.Error);
         }
     }
 }
