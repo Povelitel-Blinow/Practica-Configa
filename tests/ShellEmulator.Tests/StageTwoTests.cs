@@ -66,7 +66,7 @@ namespace ShellEmulator.Tests
                 CommandResult result = shell.RunScript(new StringReader("ls\n" + line + "\nls NEVER\n"));
                 Require(result == CommandResult.Error, "script result");
                 Require(output.ToString().Contains(Shell.GetPrompt() + line), "echo failing command");
-                Require(output.ToString().Contains("ls: []"), "previous command runs");
+                Require(output.ToString().Contains(Shell.GetPrompt() + "ls"), "previous command runs");
                 Require(!output.ToString().Contains("NEVER"), "stop before next line");
                 Require(error.ToString().Length > 0, "script error message");
             }
@@ -99,7 +99,7 @@ namespace ShellEmulator.Tests
             string path = Path.Combine(Path.GetTempPath(), "shell test " + Guid.NewGuid() + ".txt");
             try
             {
-                File.WriteAllText(path, "ls \"папка\"\ncd\n");
+                File.WriteAllText(path, "find / -name \"папка\"\ncd\n");
                 CheckSuccessfulApplication(path);
                 File.WriteAllText(path, "exit\nls NEVER\n");
                 CheckStoppedApplication(path, 0);
@@ -138,12 +138,12 @@ namespace ShellEmulator.Tests
             StringWriter output = new StringWriter();
             StringWriter error = new StringWriter();
             int code = Application.Run(new string[] {"--vfs", vfsPath, "--script", path},
-                new StringReader("ls INTERACTIVE\nexit\n"), output, error);
+                new StringReader("find / -name INTERACTIVE\nexit\n"), output, error);
             Require(code == 0 && error.ToString() == "", "successful startup");
             Require(output.ToString().Contains("VFS: " + vfsPath), "debug VFS");
             Require(output.ToString().Contains("Script: " + path), "debug script");
-            Require(output.ToString().Contains("ls \"папка\""), "UTF-8 script input");
-            Require(output.ToString().Contains("INTERACTIVE"), "REPL after script");
+            Require(output.ToString().Contains("find / -name \"папка\""), "UTF-8 script input");
+            Require(output.ToString().EndsWith(Shell.GetPrompt()), "REPL after script");
         }
 
         /// <summary>После exit или ошибки скрипта REPL не запускается.</summary>

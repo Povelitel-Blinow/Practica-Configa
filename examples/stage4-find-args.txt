@@ -1,0 +1,2 @@
+find / -bad x
+ls NEVER

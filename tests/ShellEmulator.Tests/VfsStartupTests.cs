@@ -59,7 +59,7 @@ namespace ShellEmulator.Tests
             Require(code == 0 && error.ToString() == "", "valid startup");
             Require(text.IndexOf("WELCOME", StringComparison.Ordinal)
                 < text.IndexOf(Shell.GetPrompt() + "ls", StringComparison.Ordinal), "motd before script");
-            Require(text.Contains("ls: []"), "commands still available");
+            Require(text.Contains("motd"), "commands still available");
             Require(File.ReadAllText(path) == csv, "application preserves source");
         }
 

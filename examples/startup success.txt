@@ -1,5 +1,5 @@
 ls
-ls -l "$USERPROFILE"
-cd "folder with spaces"
-ls '$HOME'
+find /
+find / -name "$USERPROFILE"
+cd /
 exit

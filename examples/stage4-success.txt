@@ -1,0 +1,18 @@
+ls
+ls /docs /empty
+ls /docs/hello.txt
+cd /docs
+ls .
+cd sub
+find
+cd ..
+find . -name "*.txt"
+find . -name "?????.txt"
+find hello.txt
+find . -name absent
+rev hello.txt "space name.txt"
+rev .hidden
+rev sub/note.txt
+cd ../../..
+cd
+exit

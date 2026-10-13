@@ -1,0 +1,2 @@
+cd /docs/hello.txt
+ls NEVER

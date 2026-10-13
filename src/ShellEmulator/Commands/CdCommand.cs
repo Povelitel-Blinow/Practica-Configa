@@ -1,14 +1,21 @@
 using System.IO;
-using System.Text.Json;
+using ShellEmulator.Vfs;
 
 namespace ShellEmulator.Commands
 {
-    /// <summary>Заглушка команды cd с проверкой числа аргументов.</summary>
+    /// <summary>Меняет рабочий каталог VFS.</summary>
     public class CdCommand : ICommand
     {
         private const int MaximumArguments = 1;
+        private readonly VfsSession _session;
 
-        /// <summary>Выводит путь либо сообщает о лишних аргументах.</summary>
+        /// <summary>Принимает общую сессию оболочки.</summary>
+        public CdCommand(VfsSession session)
+        {
+            _session = session;
+        }
+
+        /// <summary>Переходит по пути; без аргументов возвращается в корень.</summary>
         public CommandResult Execute(string[] arguments, TextWriter output, TextWriter error)
         {
             if (arguments.Length > MaximumArguments)
@@ -17,7 +24,7 @@ namespace ShellEmulator.Commands
                 return CommandResult.Error;
             }
 
-            output.WriteLine("cd: " + JsonSerializer.Serialize(arguments));
+            _session.ChangeDirectory(arguments.Length == 0 ? "/" : arguments[0]);
             return CommandResult.Success;
         }
     }

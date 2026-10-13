@@ -36,8 +36,11 @@ namespace ShellEmulator
 
             _fileSystem = fileSystem;
             _commands = new Dictionary<string, ICommand>(StringComparer.Ordinal);
-            RegisterCommand("ls", new LsCommand());
-            RegisterCommand("cd", new CdCommand());
+            VfsSession session = new VfsSession(fileSystem);
+            RegisterCommand("ls", new LsCommand(session));
+            RegisterCommand("cd", new CdCommand(session));
+            RegisterCommand("find", new FindCommand(session));
+            RegisterCommand("rev", new RevCommand(session, input));
             RegisterCommand("exit", new ExitCommand());
         }
 
@@ -141,7 +144,24 @@ namespace ShellEmulator
                 return CommandResult.Error;
             }
 
-            return handler.Execute(arguments, _output, _error);
+            try
+            {
+                return handler.Execute(arguments, _output, _error);
+            }
+            catch (InvalidDataException exception)
+            {
+                _error.WriteLine("Ошибка: " + exception.Message);
+            }
+            catch (IOException exception)
+            {
+                _error.WriteLine("Ошибка: " + exception.Message);
+            }
+            catch (ArgumentException exception)
+            {
+                _error.WriteLine("Ошибка: " + exception.Message);
+            }
+
+            return CommandResult.Error;
         }
     }
 }

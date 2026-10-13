@@ -24,6 +24,7 @@ namespace ShellEmulator.Tests
                 s_passed += StageTwoTests.Run();
                 s_passed += VfsTests.Run();
                 s_passed += VfsStartupTests.Run();
+                s_passed += StageFourTests.Run();
                 Console.WriteLine("PASS: " + s_passed + " checks");
                 return 0;
             }
@@ -58,18 +59,18 @@ namespace ShellEmulator.Tests
             ExpectParseError("ls \"unclosed");
         }
 
-        /// <summary>Проверяет вывод заглушек, ошибки аргументов и завершение.</summary>
+        /// <summary>Проверяет команды пустой VFS, ошибки аргументов и завершение.</summary>
         private static void CheckCommands()
         {
             StringWriter output = new StringWriter();
             StringWriter errors = new StringWriter();
             Shell shell = new Shell(new StringReader(""), output, errors);
             string directory = Environment.CurrentDirectory;
-            Require(shell.Execute("ls -l /tmp"), "ls continues");
-            Require(output.ToString().Contains("ls: [\"-l\",\"/tmp\"]"), "ls output");
+            Require(shell.ExecuteCommand("ls /") == CommandResult.Success, "ls root");
+            Require(output.ToString() == "", "empty root listing");
             Require(shell.Execute("cd /nonexistent"), "cd continues");
-            Require(output.ToString().Contains("cd: [\"/nonexistent\"]"), "cd output");
-            Require(Environment.CurrentDirectory == directory, "cd is a stub");
+            Require(errors.ToString().Contains("/nonexistent"), "missing directory error");
+            Require(Environment.CurrentDirectory == directory, "host directory unchanged");
             Require(shell.Execute("cd"), "cd without arguments");
             Require(shell.Execute("cd one two"), "invalid cd continues");
             Require(shell.Execute("exit 1"), "invalid exit continues");
@@ -87,10 +88,11 @@ namespace ShellEmulator.Tests
         {
             StringWriter output = new StringWriter();
             StringWriter errors = new StringWriter();
-            new Shell(new StringReader("unknown\nls\nexit\ncd ignored\n"), output, errors).Run();
+            new Shell(new StringReader("unknown\nfind /\nexit\ncd ignored\n"), output, errors).Run();
             string expectedPrompt = Environment.UserName + "@" + Environment.MachineName + ":~$ ";
             Require(output.ToString().StartsWith(expectedPrompt), "prompt");
-            Require(output.ToString().Contains("ls: []"), "REPL continues after error");
+            Require(output.ToString().Contains(expectedPrompt + "/" + Environment.NewLine),
+                "REPL continues after error");
             Require(!output.ToString().Contains("ignored"), "REPL stops on exit");
             StringWriter eofOutput = new StringWriter();
             new Shell(new StringReader(""), eofOutput, errors).Run();

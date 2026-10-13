@@ -1,0 +1,10 @@
+path,type,content
+/docs,directory,
+/docs/sub,directory,
+/empty,directory,
+/motd,file,U3RhZ2UgNCBWRlMgcmVhZHkK
+/docs/hello.txt,file,YWJjCtCf0YDQuNCy0LXRggo=
+/docs/sub/note.txt,file,c2Vjb25kIGZpbGU=
+/docs/space name.txt,file,QfCfmIBlzIEK
+/docs/.hidden,file,
+/bad.bin,file,/w==

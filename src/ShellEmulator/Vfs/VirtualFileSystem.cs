@@ -56,6 +56,27 @@ namespace ShellEmulator.Vfs
             return entry;
         }
 
+        /// <summary>Возвращает непосредственных потомков в порядке абсолютных путей.</summary>
+        public List<string> GetChildren(string path)
+        {
+            if (!GetEntry(path).IsDirectory())
+            {
+                throw new IOException("Не является каталогом: " + path);
+            }
+
+            List<string> children = new List<string>();
+            foreach (string candidate in _entries.Keys)
+            {
+                if (candidate != "/" && VirtualPath.GetParent(candidate) == path)
+                {
+                    children.Add(candidate);
+                }
+            }
+
+            children.Sort(StringComparer.Ordinal);
+            return children;
+        }
+
         /// <summary>Проверяет корень и существование каждого родительского каталога.</summary>
         private void ValidateTree()
         {
