@@ -7,18 +7,18 @@ namespace ShellEmulator.Tests
     /// <summary>Проверки конфигурации, сценариев и расширения реестра команд.</summary>
     internal class StageTwoTests
     {
-        private static int s_passed;
+        private static int _sPassed;
 
         /// <summary>Запускает проверки второго этапа и возвращает их число.</summary>
         public static int Run()
         {
-            s_passed = 0;
+            _sPassed = 0;
             CheckOptions();
             CheckInvalidOptions();
             CheckScriptErrors();
             CheckRegistry();
             CheckApplication();
-            return s_passed;
+            return _sPassed;
         }
 
         /// <summary>Проверяет значения по умолчанию, оба параметра и произвольный порядок.</summary>
@@ -86,7 +86,7 @@ namespace ShellEmulator.Tests
             }
             catch (ArgumentException)
             {
-                s_passed++;
+                _sPassed++;
                 return;
             }
 
@@ -165,7 +165,7 @@ namespace ShellEmulator.Tests
                 throw new InvalidOperationException(description);
             }
 
-            s_passed++;
+            _sPassed++;
         }
 
         /// <summary>Тестовый обработчик для проверки расширения реестра.</summary>

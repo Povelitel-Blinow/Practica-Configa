@@ -8,17 +8,17 @@ namespace ShellEmulator.Tests
     /// <summary>Проверяет файловые команды, переходы и ошибки этапа 4.</summary>
     internal class StageFourTests
     {
-        private static int s_passed;
+        private static int _sPassed;
 
         /// <summary>Запускает сценарии этапа 4.</summary>
         public static int Run()
         {
-            s_passed = 0;
+            _sPassed = 0;
             CheckNavigation();
             CheckFind();
             CheckRev();
             CheckErrors();
-            return s_passed;
+            return _sPassed;
         }
 
         /// <summary>Создаёт дерево с Unicode, пробелами, скрытым и двоичным файлами.</summary>
@@ -117,7 +117,7 @@ namespace ShellEmulator.Tests
                 throw new InvalidOperationException(description);
             }
 
-            s_passed++;
+            _sPassed++;
         }
     }
 }

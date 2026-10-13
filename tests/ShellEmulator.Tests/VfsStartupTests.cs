@@ -9,12 +9,12 @@ namespace ShellEmulator.Tests
     internal class VfsStartupTests
     {
         private const string Header = "path,type,content\n";
-        private static int s_passed;
+        private static int _sPassed;
 
         /// <summary>Запускает проверки интеграции и возвращает их число.</summary>
         public static int Run()
         {
-            s_passed = 0;
+            _sPassed = 0;
             CheckMessages();
             string path = Path.Combine(Path.GetTempPath(), "vfs startup " + Guid.NewGuid() + ".csv");
             try
@@ -29,7 +29,7 @@ namespace ShellEmulator.Tests
             }
 
             CheckMissingFile(path);
-            return s_passed;
+            return _sPassed;
         }
 
         /// <summary>Проверяет отсутствие motd, каталог, вложенный файл и варианты окончания текста.</summary>
@@ -116,7 +116,7 @@ namespace ShellEmulator.Tests
                 throw new InvalidOperationException(description);
             }
 
-            s_passed++;
+            _sPassed++;
         }
     }
 }

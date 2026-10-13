@@ -9,7 +9,7 @@ namespace ShellEmulator.Tests
     internal class Program
     {
         private const string VariableName = "SHELL_EMULATOR_TEST_VALUE";
-        private static int s_passed;
+        private static int _sPassed;
 
         /// <summary>Запускает проверки парсера, команд и полного цикла REPL.</summary>
         private static int Main()
@@ -21,11 +21,11 @@ namespace ShellEmulator.Tests
                 CheckParser();
                 CheckCommands();
                 CheckRepl();
-                s_passed += StageTwoTests.Run();
-                s_passed += VfsTests.Run();
-                s_passed += VfsStartupTests.Run();
-                s_passed += StageFourTests.Run();
-                Console.WriteLine("PASS: " + s_passed + " checks");
+                _sPassed += StageTwoTests.Run();
+                _sPassed += VfsTests.Run();
+                _sPassed += VfsStartupTests.Run();
+                _sPassed += StageFourTests.Run();
+                Console.WriteLine("PASS: " + _sPassed + " checks");
                 return 0;
             }
             catch (Exception exception)
@@ -115,7 +115,7 @@ namespace ShellEmulator.Tests
                 }
             }
 
-            s_passed++;
+            _sPassed++;
         }
 
         /// <summary>Проверяет отказ парсера при незакрытых кавычках.</summary>
@@ -127,7 +127,7 @@ namespace ShellEmulator.Tests
             }
             catch (FormatException)
             {
-                s_passed++;
+                _sPassed++;
                 return;
             }
 
@@ -142,7 +142,7 @@ namespace ShellEmulator.Tests
                 throw new InvalidOperationException(description);
             }
 
-            s_passed++;
+            _sPassed++;
         }
     }
 }

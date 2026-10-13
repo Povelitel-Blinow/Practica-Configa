@@ -9,8 +9,8 @@ namespace ShellEmulator
     /// <summary>Разбирает аргументы с кавычками и раскрывает переменные окружения ОС.</summary>
     public class CommandParser
     {
-        private static readonly Regex s_fragment = new Regex("[^\\s'\"]+|'[^']*'|\"[^\"]*\"");
-        private static readonly Regex s_variable = new Regex(
+        private static readonly Regex SFragment = new Regex("[^\\s'\"]+|'[^']*'|\"[^\"]*\"");
+        private static readonly Regex SVariable = new Regex(
             "\\$\\{([A-Za-z_][A-Za-z0-9_]*)\\}|\\$([A-Za-z_][A-Za-z0-9_]*)");
 
         private const int QuoteCount = 2;
@@ -35,7 +35,7 @@ namespace ShellEmulator
                     continue;
                 }
 
-                Match match = s_fragment.Match(line, position);
+                Match match = SFragment.Match(line, position);
                 if (!match.Success || match.Index != position)
                 {
                     throw new FormatException("Незакрытая кавычка.");
@@ -71,7 +71,7 @@ namespace ShellEmulator
         private static string ExpandVariables(string value)
         {
             StringBuilder result = new StringBuilder();
-            MatchCollection matches = s_variable.Matches(value);
+            MatchCollection matches = SVariable.Matches(value);
             int position = 0;
             for (int index = 0; index < matches.Count; index++)
             {

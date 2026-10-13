@@ -10,18 +10,18 @@ namespace ShellEmulator.Tests
     internal class VfsTests
     {
         private const string Header = "path,type,content\n";
-        private static int s_passed;
+        private static int _sPassed;
 
         /// <summary>Запускает проверки файловой модели и загрузчика.</summary>
         public static int Run()
         {
-            s_passed = 0;
+            _sPassed = 0;
             CheckValidImages();
             CheckInvalidImages();
             CheckInvalidPaths();
             CheckContentIsolation();
             CheckSourceIndependence();
-            return s_passed;
+            return _sPassed;
         }
 
         /// <summary>Проверяет минимальный образ, вложенность, CSV-кавычки и бинарные файлы.</summary>
@@ -95,7 +95,7 @@ namespace ShellEmulator.Tests
             }
             catch (InvalidOperationException)
             {
-                s_passed++;
+                _sPassed++;
                 return;
             }
 
@@ -137,7 +137,7 @@ namespace ShellEmulator.Tests
             }
             catch (InvalidDataException)
             {
-                s_passed++;
+                _sPassed++;
                 return;
             }
 
@@ -152,7 +152,7 @@ namespace ShellEmulator.Tests
                 throw new InvalidOperationException(description);
             }
 
-            s_passed++;
+            _sPassed++;
         }
     }
 }
